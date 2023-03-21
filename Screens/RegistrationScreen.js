@@ -58,13 +58,14 @@ export const RegistrationScreen =() => {
     const passwordChange = (password) => setPassword(password);
 
     const onSignIn = () => {
-        if (!email.trim() || !password.trim()) {
+        if (!userName.trim || !email.trim() || !password.trim()) {
           Alert.alert(`Fields must be completed!`);
           return;
         }
-        Alert.alert(`Welcome back, ${email}!`);
+        Alert.alert(`Congratulations, ${userName}, you are registered!`);
         setIsShowKeyboard(false);
-        console.log(email, password);
+        console.log(userName, email, password);
+        setUserName("");
         setEmail("");
         setPassword("");
         Keyboard.dismiss();
