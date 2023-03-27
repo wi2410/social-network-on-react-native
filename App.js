@@ -1,10 +1,16 @@
-// import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 import { StyleSheet} from 'react-native';
-import {RegistrationScreen} from './Screens/RegistrationScreen';
-import {LoginScreen} from './Screens/LoginScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import useRoute from './Routes/useRoute';
+
 
 export default function App() {
-  return <RegistrationScreen/>;
+  const routing = useRoute({});
+  return (
+  <NavigationContainer>
+    {routing}
+  </NavigationContainer>
+  );
 }
 
 const styles = StyleSheet.create({

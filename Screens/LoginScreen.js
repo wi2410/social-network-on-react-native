@@ -5,7 +5,7 @@ import {StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity,
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
-export const LoginScreen =() => {
+export const LoginScreen =({navigation}) => {
     const [fontsLoaded] = useFonts({
         RobotoBold: require("../assets/fonts/Roboto/Roboto-Bold.ttf"),
         RobotoRegular: require("../assets/fonts/Roboto/Roboto-Regular.ttf"),
@@ -120,11 +120,14 @@ return (
                     <TouchableOpacity activeOpacity={0.6} style={{...styles.btn, width: dimensions}} onPress={onSignIn}>
                         <Text style={{...styles.btnTitle, fontFamily:"RobotoRegular",}} >Sign In</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Text style={{...styles.linkTitle, fontFamily:"RobotoRegular", marginBottom: isShowKeyboard ? -20 : 144}}>
+                    <View style={{marginBottom: isShowKeyboard ? -25 : 144}}>
+                    <TouchableOpacity onPress={()=> navigation.navigate("Register")}>
+                        <Text style={{...styles.linkTitle, fontFamily:"RobotoRegular", }}>
                             Don't have account? Register
                         </Text>
                     </TouchableOpacity>
+                    </View>
+                    
                 </View>
         </ImageBackground>
     </View>
