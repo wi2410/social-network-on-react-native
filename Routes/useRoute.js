@@ -4,6 +4,7 @@ import {RegistrationScreen} from '../Screens/RegistrationScreen';
 import {LoginScreen} from '../Screens/LoginScreen';
 import Home from "../Screens/Home";
 const AuthStack = createStackNavigator();
+const MainStack = createStackNavigator();
 
 const useRoute = (isAuth) => {
     if(!isAuth){
@@ -12,7 +13,13 @@ const useRoute = (isAuth) => {
       <AuthStack.Screen options={{headerShown: false}} name='Login' component={LoginScreen}/>
     </AuthStack.Navigator>
     }
-    return <Home/>;
+    return (
+      <MainStack.Navigator>
+      <MainStack.Screen options={{ headerShown: false }}
+        name="Home"
+        component={Home}/>
+    </MainStack.Navigator>
+    );
   }
 
   export default useRoute;
