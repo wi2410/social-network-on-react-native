@@ -6,7 +6,7 @@ import useRoute  from "../Routes/useRoute";
 import { authStateChangeUser } from "../redux/auth/authOperations";
 
 
-export const Main = () => {
+export const Main = ({onLayoutRootView}) => {
     const { stateChange } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
@@ -17,5 +17,5 @@ export const Main = () => {
 
   const routing = useRoute(stateChange);
 
-  return <NavigationContainer>{routing}</NavigationContainer>;
+  return <NavigationContainer onLayout={onLayoutRootView}>{routing}</NavigationContainer>;
 };

@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
-import {Text, View, StyleSheet, FlatList, Image, TouchableOpacity} from "react-native";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import {Text, View, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions, } from "react-native";
+
 
 import {
   collection,
@@ -17,14 +17,25 @@ import Like from "../assets/images/like.svg";
 import LocationIcon from "../assets/images/location.svg";
 
 
-const DefaultScreenPosts = ({route, navigation}) => {
-    const [fontsLoaded] = useFonts({
-        RobotoBold: require("../assets/fonts/Roboto/Roboto-Bold.ttf"),
-        RobotoRegular: require("../assets/fonts/Roboto/Roboto-Regular.ttf"),
-        RobotoMedium: require("../assets/fonts/Roboto/Roboto-Medium.ttf"),
-      });
+const DefaultScreenPosts = ({route, navigation, onLayoutRootView}) => {
+    
+    
+    const { userName, email, userAvatar } = useSelector((state) => state.auth);
 
     const [posts, setPosts] = useState([]);
+
+    const [dimensions, setDimensions] = useState(Dimensions.get('window').width - 16 * 2)
+
+    useEffect(()=>{
+        const onChange = () => {
+            const width = Dimensions.get('window').width - 16 * 2;
+            
+            setDimensions(width);
+        }
+        const subscription = Dimensions.addEventListener("change", onChange);
+
+        return () => subscription.remove();
+    },[])
 
     const getAllPosts = async () => {
       try {
@@ -40,21 +51,6 @@ const DefaultScreenPosts = ({route, navigation}) => {
       getAllPosts();
     },[]);
 
-    useEffect(() => {
-        async function makeReady() {
-          await SplashScreen.preventAutoHideAsync();
-        }
-        makeReady();
-      }, []);
-    
-      const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-          await SplashScreen.hideAsync();
-        }
-      }, [fontsLoaded]);
-      if (!fontsLoaded) {
-        return null;
-      }
     return (
         <View onLayout={onLayoutRootView} style={styles.container}>
            <FlatList
@@ -62,16 +58,16 @@ const DefaultScreenPosts = ({route, navigation}) => {
             <View style={styles.userSection}>
               <Image
                 style={styles.avatarImage}
-                source={require("../assets/images/userAvatar.jpg")}
+                source={{ uri: userAvatar }}
               />
               <View style={styles.userInfo}>
                 <Text
                   style={{ ...styles.textUserName, fontFamily: "RobotoBold" }}
                 >
-                  Natali Romanova
+                  {userName}
                 </Text>
                 <Text style={{ ...styles.textUserEmail, fontFamily: "RobotoRegular" }}>
-                  email@example.com
+                {email}
                 </Text>
               </View>
             </View>
@@ -95,14 +91,18 @@ const DefaultScreenPosts = ({route, navigation}) => {
                             >
                                 <TouchableOpacity
                                 style={styles.wrapper}
-                                onPress={() => navigation.navigate("Comments")}
+                                onPress={() => navigation.navigate("Comments", {
+                                  postId: item.id,
+                                  postPhoto: item.photo,
+                                  commentsQuantity: item.commentsQuantity,
+                                })}
                                 >
                                 <Message fill={item.commentsQuantity === 0 ? "#BDBDBD" : "#FF6C00"} />
-                                <Text style={styles.postText}>{item.comments}</Text>
+                                <Text style={styles.postText}>{item.commentsQuantity}</Text>
                                 </TouchableOpacity>
                                 <View style={{ ...styles.wrapper, marginLeft: 24 }}>
                                     <Like fill={!item.likeStatus ? "#BDBDBD" : "#FF6C00"}/>
-                                    <Text style={styles.postText}>{item.likes}</Text>
+                                    <Text style={styles.postText}>{item.likesQuantity}</Text>
                                 </View>
                             </View>
                             <TouchableOpacity style={styles.wrapper} onPress={() => navigation.navigate('Map', { location: item.location })}>

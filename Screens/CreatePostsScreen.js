@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import {Text, View, StyleSheet, Image, TextInput, Keyboard, KeyboardAvoidingView, Dimensions} from "react-native";
 import { Camera } from "expo-camera";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
+// import { useFonts } from "expo-font";
+// import * as SplashScreen from "expo-splash-screen";
 import * as Location from "expo-location";
 
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -17,11 +17,7 @@ import LocationIcon from "../assets/images/location.svg";
 import Trash from "../assets/images/trash.svg";
 
 
-const CreatePostsScreen = ({route, navigation}) => {
-    const [fontsLoaded] = useFonts({
-        RobotoBold: require("../assets/fonts/Roboto/Roboto-Bold.ttf"),
-        RobotoRegular: require("../assets/fonts/Roboto/Roboto-Regular.ttf"),
-      });
+const CreatePostsScreen = ({route, navigation, onLayoutRootView}) => {
 
     const [camera, setCamera] = useState(null);
     const [photo, setPhoto] = useState(null);
@@ -141,28 +137,6 @@ const CreatePostsScreen = ({route, navigation}) => {
         
         Keyboard.dismiss();
       };
-    // useEffect(() => {
-    //     if (route.params) {
-          
-    //       setLocation(route.params.location);
-    //     }
-    //   }, [route.params]);
-      
-    useEffect(() => {
-        async function makeReady() {
-          await SplashScreen.preventAutoHideAsync();
-        }
-        makeReady();
-      }, []);
-    
-      const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-          await SplashScreen.hideAsync();
-        }
-      }, [fontsLoaded]);
-      if (!fontsLoaded) {
-        return null;
-      }
     return (
         <KeyboardAvoidingView
                 onLayout={onLayoutRootView}
