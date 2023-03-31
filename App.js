@@ -1,23 +1,12 @@
 import React from 'react';
-import { StyleSheet} from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import useRoute from './Routes/useRoute';
-
+import {Provider} from 'react-redux';
+import { Main } from "./components/Main";
+import { store } from "./redux/store";
 
 export default function App() {
-  const routing = useRoute({});
   return (
-  <NavigationContainer>
-    {routing}
-  </NavigationContainer>
+    <Provider store={store}>
+      <Main />
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

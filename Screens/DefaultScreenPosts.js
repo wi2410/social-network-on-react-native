@@ -3,6 +3,15 @@ import {Text, View, StyleSheet, FlatList, Image, TouchableOpacity} from "react-n
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
+import {
+  collection,
+  query,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../firebase/config";
+
 import Message from "../assets/images/message.svg";
 import Like from "../assets/images/like.svg";
 import LocationIcon from "../assets/images/location.svg";
@@ -16,12 +25,20 @@ const DefaultScreenPosts = ({route, navigation}) => {
       });
 
     const [posts, setPosts] = useState([]);
+
+    const getAllPosts = async () => {
+      try {
+        const ref = query(collection(db, "posts"));
+        onSnapshot(ref, (snapDoc) => {
+          setPosts(snapDoc.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+        });
+      } catch (error) {
+        console.log("error.message", error.message);
+      }
+    }
     useEffect(()=> {
-        if(route.params){
-            setPosts(prevState => [...prevState, route.params])
-        }
-    },[route.params]);
-    console.log('posts', posts);
+      getAllPosts();
+    },[]);
 
     useEffect(() => {
         async function makeReady() {
@@ -64,10 +81,10 @@ const DefaultScreenPosts = ({route, navigation}) => {
             renderItem={({item})=> (
                 <View style={styles.postContainer}>
                     <Image 
-                        source={{uri: item.newPost.imagePost}} 
+                        source={{uri: item.photo}} 
                         style={{width: "100%", height: 240, borderRadius: 8, }}/>
                         <Text style={{ ...styles.postTitle, fontFamily: "RobotoMedium" }}>
-                            {item.newPost.title}
+                            {item.title}
                         </Text>
                         <View style={styles.postThumb}>
                             <View
@@ -80,17 +97,17 @@ const DefaultScreenPosts = ({route, navigation}) => {
                                 style={styles.wrapper}
                                 onPress={() => navigation.navigate("Comments")}
                                 >
-                                <Message />
-                                <Text style={styles.postText}>{item.newPost.comments}</Text>
+                                <Message fill={item.commentsQuantity === 0 ? "#BDBDBD" : "#FF6C00"} />
+                                <Text style={styles.postText}>{item.comments}</Text>
                                 </TouchableOpacity>
                                 <View style={{ ...styles.wrapper, marginLeft: 24 }}>
-                                    <Like />
-                                    <Text style={styles.postText}>{item.newPost.likes}</Text>
+                                    <Like fill={!item.likeStatus ? "#BDBDBD" : "#FF6C00"}/>
+                                    <Text style={styles.postText}>{item.likes}</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity style={styles.wrapper} onPress={() => navigation.navigate('Map')}>
+                            <TouchableOpacity style={styles.wrapper} onPress={() => navigation.navigate('Map', { location: item.location })}>
                                 <LocationIcon />
-                                <Text style={styles.postText}>{item.newPost.location}</Text>
+                                <Text style={styles.postText}>{item.city}</Text>
                             </TouchableOpacity>
                         </View>
                 </View>

@@ -1,10 +1,16 @@
 import React, {useState, useEffect, useCallback} from "react";
+import { useSelector } from "react-redux";
 import {Text, View, StyleSheet, Image, TextInput, Keyboard, KeyboardAvoidingView, Dimensions} from "react-native";
 import { Camera } from "expo-camera";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import * as Location from "expo-location";
+
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
+
 
 
 import LocationIcon from "../assets/images/location.svg";
@@ -22,6 +28,7 @@ const CreatePostsScreen = ({route, navigation}) => {
 
     const [title, setTitle] = useState("");
     const [location, setLocation] = useState("");
+    const [city, setCity] = useState("");
 
     const [isFocusedTitle, setIsFocusedTitle] = useState(false);
     const [isFocusedLocation, setIsFocusedLocation] = useState(false);
@@ -63,30 +70,68 @@ const CreatePostsScreen = ({route, navigation}) => {
           : setIsDisabledTrash(true);
       }, [title, location, photo]);
 
+      const { userId, userName } = useSelector((state) => state.auth);
+
     const takePhoto = async () => {
         const photo = await camera.takePictureAsync();
-        const location = await Location.getCurrentPositionAsync();
+        let location = await Location.getCurrentPositionAsync();
+        let coords = {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        };
+        let address = await Location.reverseGeocodeAsync(coords);
+        let city = address[0].city;
         setPhoto(photo.uri);
         setLocation(location);
-        console.log("take photo", location)
+        setCity(city);
+        console.log("take photo", address)
     };
     const titleHandler = (title) => setTitle(title);
     
+    const uploadPhotoToServer = async () => {
+      try {
+        const response = await fetch (photo);
+        const file = await response.blob();
+        const uniquePostId = Date.now().toString();
+        const storage = getStorage();
+        const storageRef = ref(storage, `postImage/${uniquePostId}`);
+
+        await uploadBytes(storageRef, file);
+
+        const uploadedPhoto = await getDownloadURL(storageRef);
+        return uploadedPhoto;
+      } catch (error) {
+        console.log("error.message", error.message);
+      }
+    };
+
+    const uploadPostToServer = async () => {
+      try {
+        const photo = await uploadPhotoToServer();
+        const postRef = await addDoc(collection(db, "posts"), {
+          photo,
+          title,
+          location,
+          city,
+          userId,
+          userName,
+          commentsQuantity: 0,
+          likesQuantity: 0,
+          likeStatus: false,
+        });
+      } catch (error) {
+        console.log("error.message", error.message);
+      }
+    };
 
     const onPublish = () => {
-        const newPost = {
-            id: Date(),
-            imagePost: photo,
-            title: title,
-            location: `${location.coords.latitude}, ${location.coords.longitude}`,
-            comments: 0,
-            likes: 0,
-          };
+          uploadPostToServer();
           setPhoto();
           setTitle("");
           setLocation("");
+          setCity("");
           Keyboard.dismiss();
-        navigation.navigate("PostScreen", {newPost});
+          navigation.navigate("PostScreen");
     };
 
     const onDelete = () => {
@@ -161,11 +206,7 @@ const CreatePostsScreen = ({route, navigation}) => {
                 }}
                 onFocus={() => setIsFocusedLocation(true)}
                 onBlur={() => setIsFocusedLocation(false)}
-                value={
-                  location
-                    ? `${location?.latitude}, ${location?.longitude}`
-                    : ""
-                }
+                value={city}
                 textContentType={"location"}
                 placeholder="Location"
                 cursorColor={"#BDBDBD"}

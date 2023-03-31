@@ -4,6 +4,9 @@ import {StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity,
 
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { useDispatch } from "react-redux";
+
+import { authSignInUser } from "../redux/auth/authOperations";
 
 export const LoginScreen =({navigation}) => {
     const [fontsLoaded] = useFonts({
@@ -19,6 +22,8 @@ export const LoginScreen =({navigation}) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [hiddenPassword, setHiddenPassword] = useState(true);
+
+    const dispatch = useDispatch();
 
     const [dimensions, setDimensions] = useState(Dimensions.get('window').width - 16 * 2)
 
@@ -55,7 +60,11 @@ export const LoginScreen =({navigation}) => {
         }
         Alert.alert(`Welcome back, ${email}!`);
         setIsShowKeyboard(false);
-        console.log(email, password);
+        const currentUser = {
+            email,
+            password,
+          }
+        dispatch(authSignInUser(currentUser));
         setEmail("");
         setPassword("");
         Keyboard.dismiss();

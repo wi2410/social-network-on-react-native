@@ -8,10 +8,10 @@ const MainStack = createStackNavigator();
 
 const useRoute = (isAuth) => {
     if(!isAuth){
-      return <AuthStack.Navigator>
+      return (<AuthStack.Navigator>
       <AuthStack.Screen options={{headerShown: false}} name='Register' component={RegistrationScreen}/>
       <AuthStack.Screen options={{headerShown: false}} name='Login' component={LoginScreen}/>
-    </AuthStack.Navigator>
+    </AuthStack.Navigator>);
     }
     return (
       <MainStack.Navigator>

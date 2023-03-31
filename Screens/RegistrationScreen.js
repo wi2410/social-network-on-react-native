@@ -4,6 +4,9 @@ import {StyleSheet, Text, View, TextInput, ImageBackground, TouchableOpacity,
 
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { useDispatch } from "react-redux";
+
+import { authSignUpUser } from "../redux/auth/authOperations";
 
 export const RegistrationScreen =({navigation}) => {
     const [fontsLoaded] = useFonts({
@@ -20,6 +23,8 @@ export const RegistrationScreen =({navigation}) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userName, setUserName] = useState("");
+
+    const dispatch = useDispatch();
 
     const [hiddenPassword, setHiddenPassword] = useState(true);
 
@@ -57,14 +62,21 @@ export const RegistrationScreen =({navigation}) => {
     const emailChange = (email) => setEmail(email);
     const passwordChange = (password) => setPassword(password);
 
-    const onSignIn = () => {
+    const onSignUp = () => {
         if (!userName.trim || !email.trim() || !password.trim()) {
           Alert.alert(`Fields must be completed!`);
           return;
         }
+        const newUser = {
+            // userAvatar: imageRef,
+            userName,
+            email,
+            password,
+          };
         Alert.alert(`Congratulations, ${userName}, you are registered!`);
         setIsShowKeyboard(false);
         console.log(userName, email, password);
+        dispatch(authSignUpUser(newUser));
         setUserName("");
         setEmail("");
         setPassword("");
@@ -138,7 +150,7 @@ return (
                     </TouchableOpacity> 
                     </View>
                       
-                    <TouchableOpacity activeOpacity={0.6} style={{...styles.btn, width: dimensions}} onPress={onSignIn}>
+                    <TouchableOpacity activeOpacity={0.6} style={{...styles.btn, width: dimensions}} onPress={onSignUp}>
                         <Text style={{...styles.btnTitle, fontFamily:"RobotoRegular",}} >Register</Text>
                     </TouchableOpacity>
                     <View style={{marginBottom: isShowKeyboard ? -25 : 144}}>
